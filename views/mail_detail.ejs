@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>게시글</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/main.css">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/animate.css">
+
+
+</head>
+<body id="body_DetailPage">
+<section>
+    <article class="main-container">
+        <div class="main-body">
+            <div class="occupy-100">
+                <div class="padding-area-10">
+                    <div class="form-mail-detail animated fadeInRight time-07" data-tag="basic-form">
+                        <div id="mail-header">
+                            <label id="subject"></label>
+                        </div>
+                        <div id="mail-body">
+                            <div class="form-content" id="content"></div>
+                            <div class="form-attach" id="attach"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </article>
+</section>
+<footer></footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.js"></script>
+<script>
+    jQuery(function($) {
+        const type = '<%=type%>';
+        const no = '<%=no%>';
+
+        $.ajax({
+            type: "GET",
+            url: "/getContent/"+type+"/"+no,
+            success: function(data) {
+                $("#subject").text(data.subject);
+                $("#content").html(data.body);
+                attachment(data.attachments)
+            }
+        });
+
+        function attachment(attachments) {
+            if(attachments.cnt) {
+                $("#attach").append("/------------------------- 첨부파일 -------------------------/");
+                for(let i=0; i<attachments.cnt; i++) {
+                    const html = '<a class="attachment" data-id="' + i + '"> # ' + attachments.files[i].fileName + " (" +
+                        sizeFomat(attachments.files[i].size) + "MB)" + '</a>';
+                    $("#attach").append(html);
+                }
+
+                $(".attachment").on('click', function() {
+                    const attachment_id = this.dataset.id;
+                    // $.ajax({
+                        // type: "POST",
+                        // url: "/download",
+                        // data: "typeUrl="+type+"&no="+no+"&attachment="+attachment_id,
+                        // success: function (data) {
+                            $(location).attr('href', '/download/'+type+"/"+no+"/"+attachment_id);
+                        // }
+                    // });
+                });
+            }
+        }
+
+        function sizeFomat(size) {
+            const size_mb = size / (1000 * 1000);
+            return Number(size_mb).toFixed(2);
+        }
+    });
+</script>
+</body>
+</html>

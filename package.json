@@ -1,0 +1,19 @@
+{
+  "name": "emailreceiver",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.9",
+    "ejs": "~2.5.7",
+    "express": "~4.16.0",
+    "http-errors": "~1.6.2",
+    "imap": "^0.8.19",
+    "mailparse": "^2.2.2",
+    "mime-types": "^2.1.21",
+    "morgan": "~1.9.0"
+  }
+}

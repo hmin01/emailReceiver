@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width initial-scale=1">
+
+    <link rel="stylesheet" type="text/css" href="/stylesheets/animate.css">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/main.css">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/loading.css">
+</head>
+<body>
+<section>
+    <article class="main-container">
+        <div class="main-header">
+            <div class="main-body">
+                <div class="animated fadeInRight">
+                    <div class="body-row">
+                        <div class="occupy-100">
+                            <div class="padding-area-15">
+                                <div class="item-box activate">
+                                    <div class="item-box-title">
+                                        <p id="diary-title"></p>
+                                    </div>
+                                    <div class="item-box-content" data-activate="true">
+                                        <div class="body-row" id="form-diary">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="body-row">
+                        <div class="occupy-100">
+                            <div class="body-row">
+                                <div class="occupy-33">
+                                    <div class="padding-area-15">
+                                        <div class="item-box activate">
+                                            <div class="item-box-title">
+                                                <p>Naver Email</p>
+                                            </div>
+                                            <div class="item-box-content" id="naver-email-item-box" data-activate="true" data-id="naver">
+                                                <div class="loading-container" id="naver-email-loading">
+                                                    <div id="loading"></div>
+                                                    <div id="loading-text">Loading</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="occupy-33">
+                                    <div class="padding-area-15">
+                                        <div class="item-box activate">
+                                            <div class="item-box-title">
+                                                <p>Google Email</p>
+                                            </div>
+                                            <div class="item-box-content" id="google-email-item-box" data-activate="true" data-id="google">
+                                                <div class="loading-container" id="google-email-loading">
+                                                    <div id="loading"></div>
+                                                    <div id="loading-text">Loading</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="occupy-33">
+                                    <div class="padding-area-15">
+                                        <div class="item-box activate">
+                                            <div class="item-box-title">
+                                                <p>Kaist Email</p>
+                                            </div>
+                                            <div class="item-box-content" id="kaist-email-item-box" data-activate="true" data-id="kaist">
+                                                <div class="loading-container" id="kaist-email-loading">
+                                                    <div id="loading"></div>
+                                                    <div id="loading-text">Loading</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </article>
+</section>
+<footer></footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.js"></script>
+<script>
+    $(document).ready(function() {
+        // let messageList;
+
+        $.ajax({
+            type: "GET",
+            url: "/naverEmail",
+            success: function(data) {
+                $("#naver-email-loading").css("display", "none");
+                showMessageList("naver", data.list);
+            }
+        });
+
+        $.ajax({
+            type: "GET",
+            url: "/googleEmail",
+            success: function(data) {
+                $("#google-email-loading").css("display", "none");
+                showMessageList("google", data.list);
+            }
+        });
+
+        $.ajax({
+            type: "GET",
+            url: "/kaistEmail",
+            success: function(data) {
+                $("#kaist-email-loading").css("display", "none");
+                showMessageList("kaist", data.list);
+            }
+        });
+
+        $(".item-box-title").on('click', function() {
+            const item_box = $(this).next();
+            if (item_box.attr('data-activate') === "true") {
+                item_slidUp(item_box);
+            } else if(item_box.attr('data-activate') === 'false') {
+                item_slidDown(item_box);
+            }
+        });
+
+        function item_slidUp(obj) {
+            obj.parent().removeClass('activate');
+            obj.slideUp(250, function() {
+                obj.attr('data-activate', 'false');
+            });
+        }
+
+        function item_slidDown(obj) {
+            obj.parent().addClass('activate');
+            obj.slideDown(250, function () {
+                obj.attr('data-activate', 'true');
+            });
+        }
+
+        // Fill Message Box
+        function showMessageList(emailServer, messageList) {
+            let obj;
+            if(emailServer === "naver") {
+                obj = $("#naver-email-item-box");
+                // obj.html(messageList[0].body);
+            } else if(emailServer === "google") {
+                obj = $("#google-email-item-box");
+                // obj.html(messageList[0].body);
+            } else if(emailServer === "kaist") {
+                obj = $("#kaist-email-item-box");
+                // obj.html(messageList[0].body);
+            }
+
+            if(obj !== undefined && messageList !== undefined && messageList !== null) {
+                for(let cnt=0;cnt<messageList.length;cnt++) {
+                    const date = moment(messageList[cnt].date);
+                    const html = '<div class="form-message-box" data-id="'+ cnt +'">' +
+                        '<p>' + messageList[cnt].subject + '</p>' +
+                        '<div>' +
+                        '<small id="datetime-text">'+ moment(date).startOf('day').fromNow() + (date.format(" hh:mm a - YYYY.MM.DD")) +'</small>' +
+                        '<small id="from-text"> from ' + messageList[cnt].from + '</small>' +
+                        '</div>' +
+                        '</div>';
+                    obj.append(html);
+                }
+            } else {
+                const html = '<div class="form-message-box">' +
+                    '<p> No Email </p>' +
+                    '<div>';
+                obj.html(html);
+            }
+
+            $(".form-message-box").on('click', function() {
+                let urlPath = "/detail";
+                const select = this.dataset.id;
+                const site = $(this).parent().attr('data-id');
+                if(site === "naver") {
+                    urlPath += "/naverEmail/";
+                } else if(site === "google") {
+                    urlPath += "/googleEmail/";
+                } else if(site === "kaist") {
+                    urlPath += "/kaistEmail/";
+                }
+                $(location).attr('href', urlPath+select);
+            });
+        }
+
+        mark_today();
+
+        function mark_today() {
+            const today = moment();
+            $("#diary-title").text("This Week " + today.format('(MM월)'));
+            const day_of_the_week = moment().startOf('week');
+            for(let d=0; d<7; d++) {
+                let html = '<div class="diary occupy-14" id="' + day_of_the_week.add(1, 'day').format('ddd') + '">' +
+                    '<div class="diary-padding">';
+
+                if((Math.floor(moment.duration(today.diff(day_of_the_week)).asDays())) === 0) {
+                    html += '<div class="diary-display-day" id="today">' + day_of_the_week.format('dddd (D)')+ '</div>' + '</div>' + '</div>';
+                } else {
+                    html += '<div class="diary-display-day">' + day_of_the_week.format('dddd (D)')+ '</div>' + '</div>' + '</div>';
+                }
+                $("#form-diary").append(html);
+            }
+
+
+        }
+    });
+</script>
+</body>
+</html>

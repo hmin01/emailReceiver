@@ -1,0 +1,258 @@
+*, ::after, ::before {
+    box-sizing: border-box;
+}
+
+.no-js {
+    display: none;
+}
+
+html, body, section, article {
+    height: 100%;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    /*background-color: #2f4050 !important;*/
+    font-family: "맑은 고딕", arial, helvetica, sans-serif !important;
+    font-size: 15px !important;
+}
+
+ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+a {
+    text-decoration: none !important;
+}
+
+div p {
+    margin: 0;
+}
+
+.float-right {
+    float: right;
+}
+
+/* Body */
+.main-container {
+    /*margin: 0 0 0 220px;*/
+    background-color: #F1F2F3;
+}
+
+div.main-body {
+    padding: 15px;
+    background-color: #F1F2F3;
+}
+
+div.body-row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+@media (min-width: 992px) {
+    .occupy-14 {
+        flex: 0 0 14.285555%;
+        max-width: 14.285555%;
+    }
+
+    .occupy-33 {
+        flex: 0 0 33.33333%;
+        max-width: 33.33333%;
+    }
+
+    .occupy-50 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+
+    .occupy-66 {
+        flex: 0 0 66.66667%;
+        max-width: 66.66667%;
+    }
+
+    .occupy-100 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+.occupy-14, .occupy-33, .occupy-50, .occupy-66, .occupy-100 {
+    width: 100%;
+}
+
+.padding-area-10 {
+    padding: 10px;
+}
+
+.padding-area-15 {
+    padding: 15px;
+}
+
+.padding-area-20 {
+    padding: 20px;
+}
+
+/* MainPage Item Box */
+.item-box {
+    background-color: white;
+    border: 1px solid #F1F2F3;
+    border-top: 2px solid #E7E8E9;
+    border-bottom: none;
+}
+
+.item-box.activate {
+    border-bottom: 1px solid #E7E8E9;
+}
+
+.item-box-title {
+    padding: 15px 20px;
+    border-bottom: 1px solid #EDEDED;
+}
+
+.item-box-content {
+    padding: 10px 20px 15px 20px;
+}
+
+.item-box-content > p {
+    margin: 5px 0;
+}
+
+.item-box-content > .spinner {
+    width: 40px;
+    height: 40px;
+    background-color: #1AB394;
+    margin: 100px auto;
+}
+
+.diary {
+    height: 180px;
+    border-right: 1px solid #F4F5F6;
+}
+
+.diary-padding {
+    padding: 5px 12px;
+}
+
+.diary:last-child {
+    border-right: none;
+}
+
+.diary > div > .diary-display-day {
+    color: #C1C1C1;
+    font-size: 13px;
+}
+
+.diary:nth-last-child(2) > div > .diary-display-day {
+    color: #C1C1FF;
+}
+
+.diary:last-child > div > .diary-display-day {
+    color: #FFC1C1;
+}
+
+#today {
+    color: #0AB394;
+    margin: -2px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+/* Sub Item Box */
+.sub-item-box {
+    background-color: white;
+    border-bottom: none;
+}
+
+.sub-item-box.activate {
+    border-bottom: 1px solid #F4F5F6;
+}
+
+.sub-item-box-title {
+    padding: 10px;
+    border-bottom: 1px solid #EDEDED;
+    font-size: 15px;
+}
+
+.sub-item-box-content {
+    padding: 5px 10px;
+    font-size: 14px;
+}
+
+.sub-item-box-content > p {
+    margin: 5px 0;
+}
+
+/* MainPage Message Box */
+.form-message-box {
+    padding: 10px;
+    border-bottom: 1px solid #F4F5F6;
+    cursor: pointer;
+}
+
+.form-message-box:first-child {
+    padding-top: 0;
+}
+
+.form-message-box:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.form-message-box > p {
+    width: 100%;
+    text-overflow: ellipsis;    /* 너비를 넘어갈 경우 말줄임 */
+    overflow: hidden;           /* 내용물 초과 시 숨김 */
+    white-space: nowrap;        /* 공백 처리 (normal: 공백 1개로 처리, nowrap: 공백을 1개로 처리, 1줄로 표시) */
+    /* word-wrap: normal; */         /* 강제로 줄바꿈 (normal: 한줄 표시, break-word: 줄바꿈) */
+}
+
+.form-message-box > div {
+    width: 100%;
+}
+
+.form-message-box > div > small {
+    display: block;
+}
+
+#datetime-text {
+    margin: 5px 0;
+    font-size: 11px;
+}
+
+#from-text {
+    font-size: 12px;
+}
+
+/* Mail Detail */
+.form-mail-detail {
+    background-color: white;
+}
+
+#mail-header {
+    padding-top: 20px;
+    padding-bottom: 10px;
+    text-align: center;
+    font-size: 19px;
+}
+
+#mail-body {
+    padding: 5px 40px 20px;
+}
+
+#mail-body * {
+    text-align: center !important;
+    margin: auto !important;
+}
+
+.attachment {
+    display: block;
+    padding: 5px 0;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.attachment:first-child {
+    padding-top: 10px;
+}
