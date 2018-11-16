@@ -2,14 +2,13 @@ const imap = require('imap');
 
 // imap 객체 선언
 module.exports = {
-    type: "",
     imap: function(typeUrl) {
         this.type = typeUrl;
         let mailReceiver;
         if(this.type === 'naver') {
             mailReceiver = new imap({
-                user: 'userName',
-                password: 'password',
+                user: 'n0_0mo_on@naver.com',
+                password: 'hmin0101',
                 host: 'imap.naver.com',
                 port: 993,
                 tls: true,

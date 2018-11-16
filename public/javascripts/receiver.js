@@ -88,7 +88,7 @@ module.exports = {
                         console.error('Fetch error: ' + err);
                     });
                     fetch.once('end', function () {
-                        console.log('Done fetching all messages!');
+                        // console.log('Done fetching all messages!');
                         mailReceiver.end();
                     });
                 });

@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const mime = require('mime-types');
 const Readable = require('stream').Readable;
+const path = require('path');
+const fm = require('../public/javascripts/fileManager').manage;
 
 const receiver = require('../public/javascripts/receiver');
 const config = require('../public/javascripts/config');
@@ -13,83 +15,114 @@ const kaist_email = new EmailObj();
 
 /* GET home page. */
 router.get('/', function(req, res) {
-  res.render('mail_inbox');
+    new Promise(function(resolve, reject) {
+        getUserData(req, resolve, reject);
+    })
+        .then(function() {
+            console.log(req.session);
+            res.render('mail_inbox');
+        })
+        .catch(function(err) {
+            console.error(err);
+        });
 });
 
 router.get('/naverEmail', function (req, res) {
     let isUpdate = false;
-    const imap = config.imap("naver");
-    new Promise(function(resolve, reject) {
-        receiver.update(imap, resolve, reject, naver_email.size);
-    })
-        .then(function(result) {
-            if(isUpdate = result) {
-                return new Promise(function (resolve, reject) {
-                    receiver.connect(imap, resolve, reject);
-                });
-            }
+    if(req.session.naver_id !== undefined) {
+        const imap = config.imap("naver");
+        imap._config.user = req.session.naver_id;
+        imap._config.password = req.session.naver_pw;
+
+        new Promise(function(resolve, reject) {
+            receiver.update(imap, resolve, reject, naver_email.size);
         })
-        .then(function(mail_data) {
-            if(isUpdate) {
-                naver_email.data = mail_data.data;
-                naver_email.size = mail_data.totalSize;
-            }
-            res.json({list: naver_email.data});
-        })
-        .catch(function(err) {
-            console.error(err);
-        });
+            .then(function(result) {
+                if(isUpdate = result) {
+                    return new Promise(function (resolve, reject) {
+                        receiver.connect(imap, resolve, reject);
+                    });
+                }
+            })
+            .then(function(mail_data) {
+                if(isUpdate) {
+                    naver_email.data = mail_data.data;
+                    naver_email.size = mail_data.totalSize;
+                }
+                res.json({list: naver_email.data});
+            })
+            .catch(function(err) {
+                console.error(err);
+            });
+    } else {
+        console.log('no data!! (naver account)')
+    }
 });
 
 router.get('/googleEmail', function (req, res) {
     let isUpdate = false;
-    new Promise(function(resolve, reject) {
-        const imap = config.imap("google");
-        receiver.update(imap, resolve, reject, google_email.size);
-    })
-        .then(function(result) {
-            if(isUpdate = result) {
-                return new Promise(function (resolve, reject) {
-                    const imap = config.imap("google");
-                    receiver.connect(imap, resolve, reject);
-                });
-            }
+    if(req.session.naver_id !== undefined) {
+        new Promise(function (resolve, reject) {
+            const imap = config.imap("google");
+            imap._config.user = req.session.google_id;
+            imap._config.password = req.session.google_pw;
+            receiver.update(imap, resolve, reject, google_email.size);
         })
-        .then(function(mail_data) {
-            if(isUpdate) {
-                google_email.data = mail_data.data;
-                google_email.size = mail_data.totalSize;
-            }
-            res.json({list: google_email.data});
-        })
-        .catch(function(err) {
-            console.error(err);
-        });
+            .then(function (result) {
+                if (isUpdate = result) {
+                    return new Promise(function (resolve, reject) {
+                        const imap = config.imap("google");
+                        imap._config.user = req.session.google_id;
+                        imap._config.password = req.session.google_pw;
+                        receiver.connect(imap, resolve, reject);
+                    });
+                }
+            })
+            .then(function (mail_data) {
+                if (isUpdate) {
+                    google_email.data = mail_data.data;
+                    google_email.size = mail_data.totalSize;
+                }
+                res.json({list: google_email.data});
+            })
+            .catch(function (err) {
+                console.error(err);
+            });
+    } else {
+        console.log('no data!! (google account)')
+    }
 });
 
 router.get('/kaistEmail', function (req, res) {
     let isUpdate = false;
-    const imap = config.imap("kaist");
-    new Promise(function(resolve, reject) {
-        receiver.update(imap, resolve, reject, kaist_email.size);
-    })
-        .then(function(result) {
-            if(isUpdate = result) {
-                return new Promise(function(resolve, reject) {
-                    receiver.connect(imap, resolve, reject);
-                });
-            }
+    if(req.session.naver_id !== undefined) {
+        const imap = config.imap("kaist");
+        imap._config.user = req.session.kaist_id;
+        imap._config.password = req.session.kaist_pw;
+
+        new Promise(function(resolve, reject) {
+            receiver.update(imap, resolve, reject, kaist_email.size);
         })
-        .then(function(mail_data) {
-            if(isUpdate) {
-                kaist_email.data = mail_data.data;
-                kaist_email.size = mail_data.totalSize;
-            }
-            res.json({list: kaist_email.data});
-        })
-        .catch(function(err) {
-            console.error(err);
-        });
+            .then(function(result) {
+                if(isUpdate = result) {
+                    return new Promise(function(resolve, reject) {
+                        receiver.connect(imap, resolve, reject);
+                    });
+                }
+            })
+            .then(function(mail_data) {
+                if(isUpdate) {
+                    kaist_email.data = mail_data.data;
+                    kaist_email.size = mail_data.totalSize;
+                }
+                res.json({list: kaist_email.data});
+            })
+            .catch(function(err) {
+                console.error(err);
+            });
+    } else {
+        console.log('no data!! (kaist account)')
+    }
 });
 
 router.get('/detail', function(req, res) {
@@ -167,5 +200,32 @@ router.get('/detail/googleEmail/:num', function(req, res) {
 router.get('/detail/kaistEmail/:num', function(req, res) {
     res.render('mail_detail', {type: "kaist", no: req.params.num});
 });
+
+function getUserData(req, resolve, reject) {
+    fm.fileExist(path.join(__dirname, '..', '/user.txt'), function (exist) {
+        if(exist) {
+            fm.read(path.join(__dirname, '..', '/user.txt'), function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    for(let i=0; i<result.length;i++) {
+                        const split = result[i].split('/');
+                        if(split[0] === 'naver') {
+                            req.session.naver_id=split[1];
+                            req.session.naver_pw=split[2];
+                        } else if(split[0] === 'google') {
+                            req.session.google_id=split[1];
+                            req.session.google_pw=split[2];
+                        } else if(split[0] === 'kaist') {
+                            req.session.kaist_id=split[1];
+                            req.session.kaist_pw=split[2];
+                        }
+                    }
+                    resolve();
+                }
+            });
+        }
+    });
+}
 
 module.exports = router;
