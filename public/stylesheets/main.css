@@ -218,6 +218,15 @@ div.body-row {
     margin-right: 0;
 }
 
+.btn-hide {
+    cursor: pointer;
+}
+
+.btn-hide > img {
+    width: 1.3em;
+    height: 1.3em;
+}
+
 #need-auth, #btn-auth {
     display: none;
 }
