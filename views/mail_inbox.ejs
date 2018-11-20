@@ -93,6 +93,14 @@
     $(document).ready(function() {
         $.ajax({
             type: "GET",
+            url: "/schedule",
+            success: function(data) {
+                mark_today(data.schedule);
+            }
+        });
+
+        $.ajax({
+            type: "GET",
             url: "/naverEmail",
             success: function(data) {
                 $("#naver-email-loading").css("display", "none");
@@ -146,13 +154,10 @@
             let obj;
             if(emailServer === "naver") {
                 obj = $("#naver-email-item-box");
-                // obj.html(messageList[0].body);
             } else if(emailServer === "google") {
                 obj = $("#google-email-item-box");
-                // obj.html(messageList[0].body);
             } else if(emailServer === "kaist") {
                 obj = $("#kaist-email-item-box");
-                // obj.html(messageList[0].body);
             }
 
             if(obj !== undefined && messageList !== undefined && messageList !== null) {
@@ -160,8 +165,9 @@
                     const date = moment(messageList[cnt].date);
                     const html = '<div class="form-message-box" data-id="'+ cnt +'">' +
                         '<p>' + messageList[cnt].subject + '</p>' +
-                        '<div>' +
-                        '<small id="datetime-text">'+ moment(date).startOf('day').fromNow() + (date.format(" hh:mm a - YYYY.MM.DD")) +'</small>' +
+                        '<div class="mail-sign" data-read="' + messageList[cnt].attr.isRead + '">New</div>'+
+                        '<div class="form-date-from">' +
+                        '<small id="datetime-text">'+ message_date(date) + (date.format(" hh:mm a - YYYY.MM.DD")) +'</small>' +
                         '<small id="from-text"> from ' + messageList[cnt].from + '</small>' +
                         '</div>' +
                         '</div>';
@@ -189,9 +195,14 @@
             });
         }
 
-        mark_today();
+        function message_date(date) {
+            const dateStr = moment(date).fromNow();
+            if(dateStr === "a day ago")
+                return "yesterday";
+            return dateStr;
+        }
 
-        function mark_today() {
+        function mark_today(schedule) {
             const today = moment();
             $("#diary-title").text("This Week " + today.format('(MM월)'));
             const day_of_the_week = moment().startOf('week');
@@ -200,14 +211,19 @@
                     '<div class="diary-padding">';
 
                 if((Math.floor(moment.duration(today.diff(day_of_the_week)).asDays())) === 0) {
-                    html += '<div class="diary-display-day" id="today">' + day_of_the_week.format('dddd (D)')+ '</div>' + '</div>' + '</div>';
+                    html += '<div class="diary-display-day" id="today">' + day_of_the_week.format('dddd (D)')+ '</div>';
                 } else {
-                    html += '<div class="diary-display-day">' + day_of_the_week.format('dddd (D)')+ '</div>' + '</div>' + '</div>';
+                    html += '<div class="diary-display-day">' + day_of_the_week.format('dddd (D)')+ '</div>' ;
                 }
+                html += '<div class="diary-form-content" id="' + day_of_the_week.format('YYYY-MM-DD') + '"></div>'+ '</div>' + '</div>';
                 $("#form-diary").append(html);
             }
 
-
+            for(let i=0;i<schedule.length;i++) {
+                const date = moment(schedule[i].date).format('YYYY-MM-DD');
+                const html = '<small class="content">' + schedule[i].content + '</small>';
+                $('#'+date).append(html);
+            }
         }
     });
 </script>

@@ -52,7 +52,7 @@
         });
 
         function attachment(attachments) {
-            if(attachments.cnt) {
+            if(attachments) {
                 $("#attach").append("/------------------------- 첨부파일 -------------------------/");
                 for(let i=0; i<attachments.cnt; i++) {
                     const html = '<a class="attachment" data-id="' + i + '"> # ' + attachments.files[i].fileName + " (" +

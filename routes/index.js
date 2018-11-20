@@ -3,15 +3,19 @@ const router = express.Router();
 const mime = require('mime-types');
 const Readable = require('stream').Readable;
 const path = require('path');
-const fm = require('../public/javascripts/fileManager').manage;
 
+const fm = require('../public/javascripts/fileManager').manage;
 const receiver = require('../public/javascripts/receiver');
 const config = require('../public/javascripts/config');
+const calendar = require('../calendar');
 
 function EmailObj() { this.size = 0 }
 const naver_email = new EmailObj();
 const google_email = new EmailObj();
 const kaist_email = new EmailObj();
+
+let config_naver_imap, config_google_imap, config_kaist_imap;
+let schedule;
 
 /* GET home page. */
 router.get('/', function(req, res) {
@@ -19,7 +23,12 @@ router.get('/', function(req, res) {
         getUserData(req, resolve, reject);
     })
         .then(function() {
-            console.log(req.session);
+            return new Promise(function(resolve, reject) {
+                calendar(resolve, reject);
+            });
+        })
+        .then(function(list) {
+            schedule = list;
             res.render('mail_inbox');
         })
         .catch(function(err) {
@@ -27,20 +36,24 @@ router.get('/', function(req, res) {
         });
 });
 
+router.get('/schedule', function(req, res) {
+    res.json({schedule: schedule});
+});
+
 router.get('/naverEmail', function (req, res) {
     let isUpdate = false;
     if(req.session.naver_id !== undefined) {
-        const imap = config.imap("naver");
-        imap._config.user = req.session.naver_id;
-        imap._config.password = req.session.naver_pw;
+        config_naver_imap = config.imap("naver");
+        config_naver_imap._config.user = req.session.naver_id;
+        config_naver_imap._config.password = req.session.naver_pw;
 
         new Promise(function(resolve, reject) {
-            receiver.update(imap, resolve, reject, naver_email.size);
+            receiver.update(config_naver_imap, resolve, reject, naver_email.size);
         })
             .then(function(result) {
                 if(isUpdate = result) {
                     return new Promise(function (resolve, reject) {
-                        receiver.connect(imap, resolve, reject);
+                        receiver.connect(config_naver_imap, resolve, reject);
                     });
                 }
             })
@@ -55,26 +68,27 @@ router.get('/naverEmail', function (req, res) {
                 console.error(err);
             });
     } else {
-        console.log('no data!! (naver account)')
+        console.log('no data!! (naver account)');
     }
 });
 
 router.get('/googleEmail', function (req, res) {
     let isUpdate = false;
-    if(req.session.naver_id !== undefined) {
+    if(req.session.google_id !== undefined) {
+        config_google_imap = config.imap("google");
+        config_google_imap._config.user = req.session.google_id;
+        config_google_imap._config.password = req.session.google_pw;
+
         new Promise(function (resolve, reject) {
-            const imap = config.imap("google");
-            imap._config.user = req.session.google_id;
-            imap._config.password = req.session.google_pw;
-            receiver.update(imap, resolve, reject, google_email.size);
+            receiver.update(config_google_imap, resolve, reject, google_email.size);
         })
             .then(function (result) {
                 if (isUpdate = result) {
                     return new Promise(function (resolve, reject) {
-                        const imap = config.imap("google");
-                        imap._config.user = req.session.google_id;
-                        imap._config.password = req.session.google_pw;
-                        receiver.connect(imap, resolve, reject);
+                        config_google_imap = config.imap("google");
+                        config_google_imap._config.user = req.session.google_id;
+                        config_google_imap._config.password = req.session.google_pw;
+                        receiver.connect(config_google_imap, resolve, reject);
                     });
                 }
             })
@@ -89,24 +103,24 @@ router.get('/googleEmail', function (req, res) {
                 console.error(err);
             });
     } else {
-        console.log('no data!! (google account)')
+        console.log('no data!! (google account)');
     }
 });
 
 router.get('/kaistEmail', function (req, res) {
     let isUpdate = false;
-    if(req.session.naver_id !== undefined) {
-        const imap = config.imap("kaist");
-        imap._config.user = req.session.kaist_id;
-        imap._config.password = req.session.kaist_pw;
+    if(req.session.kaist_id !== undefined) {
+        config_kaist_imap = config.imap("kaist");
+        config_kaist_imap._config.user = req.session.kaist_id;
+        config_kaist_imap._config.password = req.session.kaist_pw;
 
         new Promise(function(resolve, reject) {
-            receiver.update(imap, resolve, reject, kaist_email.size);
+            receiver.update(config_kaist_imap, resolve, reject, kaist_email.size);
         })
             .then(function(result) {
                 if(isUpdate = result) {
                     return new Promise(function(resolve, reject) {
-                        receiver.connect(imap, resolve, reject);
+                        receiver.connect(config_kaist_imap, resolve, reject);
                     });
                 }
             })
@@ -121,12 +135,56 @@ router.get('/kaistEmail', function (req, res) {
                 console.error(err);
             });
     } else {
-        console.log('no data!! (kaist account)')
+        console.log('no data!! (kaist account)');
     }
 });
 
 router.get('/detail', function(req, res) {
     res.render('mail_detail');
+});
+
+router.get('/detail/naverEmail/:num', function(req, res) {
+    res.render('mail_detail', {type: "naver", no: req.params.num});
+});
+
+router.get('/detail/googleEmail/:num', function(req, res) {
+    res.render('mail_detail', {type: "google", no: req.params.num});
+});
+
+router.get('/detail/kaistEmail/:num', function(req, res) {
+    res.render('mail_detail', {type: "kaist", no: req.params.num});
+});
+
+router.get('/getContent/:typeUrl/:select', function(req, res) {
+    const typeUrl = req.params.typeUrl;
+    const select = req.params.select;
+    let imap, email_data;
+    if(typeUrl === 'naver') {
+        email_data = naver_email.data[select];
+        imap = config_naver_imap;
+    } else if(typeUrl === 'google') {
+        email_data = google_email.data[select];
+        imap = config_google_imap;
+    } else if(typeUrl === 'kaist') {
+        email_data = kaist_email.data[select];
+        imap = config_kaist_imap;
+    }
+    // 읽음 처리
+    receiver.seen(imap, email_data);
+
+    const attachments_info = {
+        cnt: email_data.attachments.length,
+        files: [],
+    };
+
+    if(attachments_info.cnt < 1) {
+        res.json({subject: email_data.subject, body: email_data.body, isAttach: 0});
+    } else {
+        for(let i=0; i<attachments_info.cnt; i++) {
+            attachments_info.files.push({fileName: email_data.attachments[i].filename, size: email_data.attachments[i].size});
+        }
+        res.json({subject: email_data.subject, body: email_data.body, attachments: attachments_info});
+    }
 });
 
 router.get('/download/:typeUrl/:no/:attachment_id', function(req, res) {
@@ -155,50 +213,6 @@ router.get('/download/:typeUrl/:no/:attachment_id', function(req, res) {
     inStream.push(attachment.content);
     inStream.push(null);
     inStream.pipe(res);
-});
-
-router.get('/getContent/:typeUrl/:select', function(req, res) {
-    const typeUrl = req.params.typeUrl;
-    const select = req.params.select;
-    let subject, body, attachments;
-    if(typeUrl === 'naver') {
-        subject = naver_email.data[select].subject;
-        body = naver_email.data[select].body;
-        attachments = naver_email.data[select].attachments;
-    } else if(typeUrl === 'google') {
-        subject = google_email.data[select].subject;
-        body = google_email.data[select].body;
-        attachments = google_email.data[select].attachments;
-    } else if(typeUrl === 'kaist') {
-        subject = kaist_email.data[select].subject;
-        body = kaist_email.data[select].body;
-        attachments = kaist_email.data[select].attachments;
-    }
-
-    const attachments_info = {
-        cnt: attachments.length,
-        files: [],
-    };
-    if(attachments.length < 1) {
-        res.json({subject: subject, body: body, isAttach: 0});
-    } else {
-        for(let i=0; i<attachments.length; i++) {
-            attachments_info.files.push({fileName: attachments[i].filename, size: attachments[i].size});
-        }
-        res.json({subject: subject, body: body, attachments: attachments_info});
-    }
-});
-
-router.get('/detail/naverEmail/:num', function(req, res) {
-    res.render('mail_detail', {type: "naver", no: req.params.num});
-});
-
-router.get('/detail/googleEmail/:num', function(req, res) {
-    res.render('mail_detail', {type: "google", no: req.params.num});
-});
-
-router.get('/detail/kaistEmail/:num', function(req, res) {
-    res.render('mail_detail', {type: "kaist", no: req.params.num});
 });
 
 function getUserData(req, resolve, reject) {

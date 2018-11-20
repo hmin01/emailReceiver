@@ -57,6 +57,11 @@ div.body-row {
         max-width: 14.285555%;
     }
 
+    .occupy-15 {
+        flex: 0 0 15%;
+        max-width: 15%;
+    }
+
     .occupy-33 {
         flex: 0 0 33.33333%;
         max-width: 33.33333%;
@@ -70,6 +75,11 @@ div.body-row {
     .occupy-66 {
         flex: 0 0 66.66667%;
         max-width: 66.66667%;
+    }
+
+    .occupy-85 {
+        flex: 0 0 85%;
+        max-width: 85%;
     }
 
     .occupy-100 {
@@ -159,6 +169,25 @@ div.body-row {
     font-weight: 700;
 }
 
+.diary-form-content {
+    padding-top: 15px;
+    padding-bottom: 10px;
+}
+
+.diary-form-content > .content {
+    display: block;
+    font-size: 11px;
+    padding: 5px;
+}
+
+.diary-form-content > .content:first-child {
+    padding-top: 0;
+}
+
+.diary-form-content > .content:last-child {
+    padding-bottom: 0;
+}
+
 /* Sub Item Box */
 .sub-item-box {
     background-color: white;
@@ -201,18 +230,36 @@ div.body-row {
 }
 
 .form-message-box > p {
-    width: 100%;
+    width: 90%;
+    display: inline-block;
     text-overflow: ellipsis;    /* 너비를 넘어갈 경우 말줄임 */
     overflow: hidden;           /* 내용물 초과 시 숨김 */
     white-space: nowrap;        /* 공백 처리 (normal: 공백 1개로 처리, nowrap: 공백을 1개로 처리, 1줄로 표시) */
     /* word-wrap: normal; */         /* 강제로 줄바꿈 (normal: 한줄 표시, break-word: 줄바꿈) */
 }
 
-.form-message-box > div {
+.form-message-box > .mail-sign {
+    display: inline-block;
+    float: right;
+    padding: 3px 6px;
+    margin-top: 1px;
+    vertical-align: top;
+    background-color: #1AB394;
+    border-radius: 3px;
+    color: white;
+    font-weight: 700;
+    font-size: 10px;
+}
+
+.form-message-box > .mail-sign[data-read="true"] {
+    display: none;
+}
+
+.form-message-box > .form-date-from {
     width: 100%;
 }
 
-.form-message-box > div > small {
+.form-message-box > .form-date-from > small {
     display: block;
 }
 

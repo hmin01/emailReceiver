@@ -1,10 +1,11 @@
 const mailParser = require('mailparse').simpleParser;
 const mail_limit = 7;
+// const fs = require('fs');
 
 module.exports = {
     update: function(mailReceiver, resolve, reject, preSize) {
         function openInbox(cb) {
-            mailReceiver.openBox('INBOX', true, cb);
+            mailReceiver.openBox('INBOX', true, cb);        // 두번째 인자가 true이면 읽기전용, false이면 열린메일
         }
         mailReceiver.connect();
         mailReceiver.once('ready', function() {
@@ -16,6 +17,9 @@ module.exports = {
             console.error(err);
             reject("connect error");
         });
+        mailReceiver.once('end', function () {
+            mailReceiver.end();
+        });
     },
     connect: function (mailReceiver, resolve, reject) {
         // imap 이메일 수신한 open
@@ -24,7 +28,7 @@ module.exports = {
         }
 
         mailReceiver.once('ready', function () {
-            let dataList = new Array(), cnt;
+            let dataList = [], attrList = [], cnt;
             openInbox(function (err, box) {
                 if (err) throw err;
                 const mail_totalCount =  box.messages.total;
@@ -41,7 +45,7 @@ module.exports = {
                             let buffer = '';
                             // 데이터 청크를 전송할 때, 발생
                             stream.on('data', function (chunk) {
-                                buffer += chunk.toString();
+                                buffer += chunk;
                             });
 
                             // 소비할 데이터가 없으면 호출
@@ -49,7 +53,7 @@ module.exports = {
                                 mailParser(buffer)
                                     .then(function (mail) {
                                         const data = {
-                                            uid: seqno,
+                                            no: seqno,
                                             subject: mail.subject,
                                             from: mail.from.value[0].name,
                                             date: mail.date,
@@ -63,8 +67,13 @@ module.exports = {
                                         if (cnt - 1 === mail_totalCount) {
                                             // uid기준 내림차순 정렬
                                             dataList.sort(function(a, b) {
-                                                return a.uid < b.uid ? 1 : a.uid > b.uid ? -1 : 0;
+                                                return a.no < b.no ? 1 : a.no > b.no ? -1 : 0;
                                             });
+
+                                            // 속성의 고유 uid를 read하여 저장
+                                            for(let i=0;i<mail_limit+1;i++) {
+                                                dataList[i].attr = attrList[i];
+                                            }
 
                                             const mail_data = {
                                                 data: dataList,
@@ -79,17 +88,17 @@ module.exports = {
                             });
                         });
                         msg.once('attributes', function (attrs) {
-                            // console.log('Attributes: %s', inspect(attrs, false, 8));
+                            // 읽음 여부 확인
+                            let isRead = true;
+                            if(attrs.flags.indexOf('\\Seen') === -1)
+                                isRead = false;
+                            attrList.unshift({uid: attrs.uid, isRead: isRead});
                         });
                         msg.once('end', function () {
                         });
                     });
                     fetch.once('error', function (err) {
                         console.error('Fetch error: ' + err);
-                    });
-                    fetch.once('end', function () {
-                        // console.log('Done fetching all messages!');
-                        mailReceiver.end();
                     });
                 });
             });
@@ -99,9 +108,35 @@ module.exports = {
             reject("connect error");
         });
         mailReceiver.once('end', function () {
-            console.log('Connection ended');
+            mailReceiver.end();
         });
         // 연결
         mailReceiver.connect();
+    },
+    seen: function(mailReceiver, email_data) {
+        function openInbox(cb) {
+            mailReceiver.openBox("INBOX", false, cb);
+        }
+
+        mailReceiver.connect();
+
+        mailReceiver.once('ready', function () {
+            openInbox(function (err, box) {
+                if (err) throw err;
+                mailReceiver.addFlags(email_data.attr.uid, '\\Seen', function(err) {
+                    if(err) {
+                        console.error(err);
+                    } else {
+                        email_data.attr.isRead = true;
+                    }
+                });
+            });
+        });
+        mailReceiver.once('error', function (err) {
+            console.error(err);
+        });
+        mailReceiver.once('end', function () {
+            mailReceiver.end();
+        });
     }
 };
