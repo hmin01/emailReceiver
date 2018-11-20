@@ -20,9 +20,20 @@
                                 <div class="item-box activate">
                                     <div class="item-box-title">
                                         <p id="diary-title"></p>
+                                        <ul id="form-diary-head">
+                                            <li><a class="head-button btn-hide">접기</a></li>
+                                            <li><a class="head-button" id="need-auth">권한 필요</a></li>
+                                            <li>
+                                                <div class="dialog" data-visible="false">
+                                                    <input type="text" id="input-authCode" placeholder="code">
+                                                    <a class="head-button" id="btn-input">input</a>
+                                                </div>
+                                                <a class="head-button" id="btn-auth">권한 부여</a>
+                                            </li>
+                                        </ul>
                                     </div>
                                     <div class="item-box-content" data-activate="true">
-                                        <div class="body-row" id="form-diary">
+                                        <div class="body-row" id="form-diary-content">
                                         </div>
                                     </div>
                                 </div>
@@ -37,6 +48,9 @@
                                         <div class="item-box activate">
                                             <div class="item-box-title">
                                                 <p>Naver Email</p>
+                                                <ul id="form-diary-head">
+                                                    <li><a class="head-button btn-hide">접기</a></li>
+                                                </ul>
                                             </div>
                                             <div class="item-box-content" id="naver-email-item-box" data-activate="true" data-id="naver">
                                                 <div class="loading-container" id="naver-email-loading">
@@ -52,6 +66,9 @@
                                         <div class="item-box activate">
                                             <div class="item-box-title">
                                                 <p>Google Email</p>
+                                                <ul id="form-diary-head">
+                                                    <li><a class="head-button btn-hide">접기</a></li>
+                                                </ul>
                                             </div>
                                             <div class="item-box-content" id="google-email-item-box" data-activate="true" data-id="google">
                                                 <div class="loading-container" id="google-email-loading">
@@ -67,6 +84,9 @@
                                         <div class="item-box activate">
                                             <div class="item-box-title">
                                                 <p>Kaist Email</p>
+                                                <ul id="form-diary-head">
+                                                    <li><a class="head-button btn-hide">접기</a></li>
+                                                </ul>
                                             </div>
                                             <div class="item-box-content" id="kaist-email-item-box" data-activate="true" data-id="kaist">
                                                 <div class="loading-container" id="kaist-email-loading">
@@ -91,10 +111,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.js"></script>
 <script>
     $(document).ready(function() {
+        let auth = false, url;
         $.ajax({
             type: "GET",
             url: "/schedule",
             success: function(data) {
+                if(!(auth = data.auth)) {
+                    url = data.url;
+                    $("#need-auth").css('display', "inline-block");
+                    $("#btn-auth").css('display', "inline-block");
+                }
                 mark_today(data.schedule);
             }
         });
@@ -126,8 +152,34 @@
             }
         });
 
-        $(".item-box-title").on('click', function() {
-            const item_box = $(this).next();
+        $("#need-auth").on('click', function() {
+            $(location).attr('href', url);
+        });
+
+        $("#btn-auth").on('click', function() {
+            const dialog = $(this).prev();
+            if(dialog.attr('data-visible') === 'false') {
+                dialog.css('display', 'block');
+                dialog.attr('data-visible', 'true');
+            } else {
+                dialog.css('display', 'none');
+                dialog.attr('data-visible', 'false');
+            }
+        });
+
+        $("#btn-input").on('click', function() {
+            const code = $("#input-authCode").val();
+            if(!checkBlock(code)) {
+                $.ajax({
+                    type: "POST",
+                    url: "/authCode",
+                    data: "code="+code,
+                });
+            }
+        });
+
+        $(".btn-hide").on('click', function() {
+            const item_box = $(this).parent().parent().parent().next();
             if (item_box.attr('data-activate') === "true") {
                 item_slidUp(item_box);
             } else if(item_box.attr('data-activate') === 'false') {
@@ -211,19 +263,26 @@
                     '<div class="diary-padding">';
 
                 if((Math.floor(moment.duration(today.diff(day_of_the_week)).asDays())) === 0) {
-                    html += '<div class="diary-display-day" id="today">' + day_of_the_week.format('dddd (D)')+ '</div>';
+                    html += '<div class="form-diary-date" id="today">' + day_of_the_week.format('dddd (D)')+ '</div>';
                 } else {
-                    html += '<div class="diary-display-day">' + day_of_the_week.format('dddd (D)')+ '</div>' ;
+                    html += '<div class="form-diary-date">' + day_of_the_week.format('dddd (D)')+ '</div>' ;
                 }
-                html += '<div class="diary-form-content" id="' + day_of_the_week.format('YYYY-MM-DD') + '"></div>'+ '</div>' + '</div>';
-                $("#form-diary").append(html);
+                html += '<div class="form-diary-schedule" id="' + day_of_the_week.format('YYYY-MM-DD') + '"></div>'+ '</div>' + '</div>';
+                $("#form-diary-content").append(html);
             }
 
-            for(let i=0;i<schedule.length;i++) {
-                const date = moment(schedule[i].date).format('YYYY-MM-DD');
-                const html = '<small class="content">' + schedule[i].content + '</small>';
-                $('#'+date).append(html);
+            if(schedule) {
+                for(let i=0;i<schedule.length;i++) {
+                    const date = moment(schedule[i].date).format('YYYY-MM-DD');
+                    const html = '<small class="content">' + schedule[i].content + '</small>';
+                    $('#'+date).append(html);
+                }
             }
+        }
+
+        function checkBlock(obj) {
+            const blank_pattern_1 = /^\s+|\s+$/g;
+            return (obj === "" || obj == null) || obj.replace(blank_pattern_1, "") === "";
         }
     });
 </script>

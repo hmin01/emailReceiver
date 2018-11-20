@@ -15,7 +15,7 @@ const google_email = new EmailObj();
 const kaist_email = new EmailObj();
 
 let config_naver_imap, config_google_imap, config_kaist_imap;
-let schedule;
+let schedule, authUrl, authCode;
 
 /* GET home page. */
 router.get('/', function(req, res) {
@@ -24,20 +24,31 @@ router.get('/', function(req, res) {
     })
         .then(function() {
             return new Promise(function(resolve, reject) {
-                calendar(resolve, reject);
+                calendar(resolve, reject, authCode);
             });
         })
-        .then(function(list) {
-            schedule = list;
+        .then(function(data) {
+            schedule = data;
+            authUrl = undefined;
             res.render('mail_inbox');
         })
-        .catch(function(err) {
-            console.error(err);
+        .catch(function(url) {
+            console.error("Error");
+            authUrl = url;
+            res.render('mail_inbox');
         });
 });
 
+router.post('/authCode', function(req, res) {
+    authCode = req.body.code;
+    res.redirect('/');
+});
+
 router.get('/schedule', function(req, res) {
-    res.json({schedule: schedule});
+    if(authUrl === undefined)
+        res.json({auth: true, schedule: schedule});
+    else
+        res.json({auth: false, schedule: schedule, url: authUrl});
 });
 
 router.get('/naverEmail', function (req, res) {

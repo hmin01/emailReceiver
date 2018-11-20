@@ -121,6 +121,10 @@ div.body-row {
     border-bottom: 1px solid #EDEDED;
 }
 
+.item-box-title > p {
+    display: inline-block;
+}
+
 .item-box-content {
     padding: 10px 20px 15px 20px;
 }
@@ -149,16 +153,16 @@ div.body-row {
     border-right: none;
 }
 
-.diary > div > .diary-display-day {
+.diary > div > .form-diary-date {
     color: #C1C1C1;
     font-size: 13px;
 }
 
-.diary:nth-last-child(2) > div > .diary-display-day {
+.diary:nth-last-child(2) > div > .form-diary-date {
     color: #C1C1FF;
 }
 
-.diary:last-child > div > .diary-display-day {
+.diary:last-child > div > .form-diary-date {
     color: #FFC1C1;
 }
 
@@ -169,23 +173,53 @@ div.body-row {
     font-weight: 700;
 }
 
-.diary-form-content {
+.form-diary-schedule {
     padding-top: 15px;
     padding-bottom: 10px;
 }
 
-.diary-form-content > .content {
+.form-diary-schedule > .content {
     display: block;
     font-size: 11px;
     padding: 5px;
+    text-overflow: ellipsis;
+    overflow: hidden;           /* 내용물 초과 시 숨김 */
+    white-space: nowrap;        /* 공백 처리 (normal: 공백 1개로 처리, nowrap: 공백을 1개로 처리, 1줄로 표시) */
 }
 
-.diary-form-content > .content:first-child {
+.form-diary-schedule > .content:first-child {
     padding-top: 0;
 }
 
-.diary-form-content > .content:last-child {
+.form-diary-schedule > .content:last-child {
     padding-bottom: 0;
+}
+
+#form-diary-head {
+    margin: 0;
+    float: right;
+}
+
+#form-diary-head > li {
+    display: inline-block;
+}
+
+.head-button {
+    padding: 5px 10px;
+    margin: 0 10px;
+    background-color: #0AB394;
+    border-radius: 3px;
+    color: white;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.head-button:last-child {
+    margin-right: 0;
+}
+
+#need-auth, #btn-auth {
+    display: none;
 }
 
 /* Sub Item Box */
@@ -302,4 +336,23 @@ div.body-row {
 
 .attachment:first-child {
     padding-top: 10px;
+}
+
+/* Dialog */
+.dialog {
+    position: absolute;
+    top: 60px;
+    right: 35px;
+
+    padding: 12px;
+    border: 1px solid #F1F2F3;
+    background-color: white;
+}
+
+.dialog[data-visible='true'] {
+    display: block;
+}
+
+.dialog[data-visible='false'] {
+    display: none;
 }
