@@ -64,7 +64,14 @@ router.get('/naverEmail', function (req, res) {
             .then(function(result) {
                 if(isUpdate = result) {
                     return new Promise(function (resolve, reject) {
-                        receiver.connect(config_naver_imap, resolve, reject);
+                        receiver.attribute(config_naver_imap, resolve, reject);
+                    });
+                }
+            })
+            .then(function(attrList) {
+                if(isUpdate) {
+                    return new Promise(function(resolve, reject) {
+                        receiver.connect(config_naver_imap, resolve, reject, attrList);
                     });
                 }
             })
@@ -99,7 +106,17 @@ router.get('/googleEmail', function (req, res) {
                         config_google_imap = config.imap("google");
                         config_google_imap._config.user = req.session.google_id;
                         config_google_imap._config.password = req.session.google_pw;
-                        receiver.connect(config_google_imap, resolve, reject);
+                        receiver.attribute(config_google_imap, resolve, reject);
+                    });
+                }
+            })
+            .then(function(attrList) {
+                if(isUpdate) {
+                    return new Promise(function(resolve, reject) {
+                        config_google_imap = config.imap("google");
+                        config_google_imap._config.user = req.session.google_id;
+                        config_google_imap._config.password = req.session.google_pw;
+                        receiver.connect(config_google_imap, resolve, reject, attrList);
                     });
                 }
             })
@@ -131,7 +148,14 @@ router.get('/kaistEmail', function (req, res) {
             .then(function(result) {
                 if(isUpdate = result) {
                     return new Promise(function(resolve, reject) {
-                        receiver.connect(config_kaist_imap, resolve, reject);
+                        receiver.attribute(config_kaist_imap, resolve, reject);
+                    });
+                }
+            })
+            .then(function(attrList) {
+                if(isUpdate) {
+                    return new Promise(function(resolve, reject) {
+                        receiver.connect(config_kaist_imap, resolve, reject, attrList);
                     });
                 }
             })

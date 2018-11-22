@@ -217,13 +217,14 @@
 
             if(obj !== undefined && messageList !== undefined && messageList !== null) {
                 for(let cnt=0;cnt<messageList.length;cnt++) {
-                    const date = moment(messageList[cnt].date);
+                    const emailData = messageList[cnt];
+                    const date = moment(emailData.date);
                     const html = '<div class="form-message-box" data-id="'+ cnt +'">' +
-                        '<p>' + messageList[cnt].subject + '</p>' +
-                        '<div class="mail-sign" data-read="' + messageList[cnt].attr.isRead + '">New</div>'+
+                        '<p>' + emailData.subject + '</p>' +
+                        '<div class="mail-sign" data-read="' + emailData.attr.isRead + '">New</div>'+
                         '<div class="form-date-from">' +
                         '<small id="datetime-text">'+ message_date(date) + (date.format(" hh:mm a - YYYY.MM.DD")) +'</small>' +
-                        '<small id="from-text"> from ' + messageList[cnt].from + '</small>' +
+                        '<small id="from-text"> from ' + emailData.from + '</small>' +
                         '</div>' +
                         '</div>';
                     obj.append(html);

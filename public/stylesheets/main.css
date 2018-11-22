@@ -316,6 +316,10 @@ div.body-row {
 }
 
 /* Mail Detail */
+#body_DetailPage {
+    font-size: 13px;
+}
+
 .form-mail-detail {
     background-color: white;
 }

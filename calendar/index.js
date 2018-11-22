@@ -2,7 +2,6 @@ const fs = require('fs');
 const readline = require('readline');
 const google = require('googleapis');
 const moment = require('moment');
-const http = require('http');
 
 module.exports = function(resolve, reject, authCode) {
     const SCOPES = ['https://www.googleapis.com/auth/calendar.readonly'];
