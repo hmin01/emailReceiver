@@ -222,9 +222,14 @@ div.body-row {
     cursor: pointer;
 }
 
-.btn-hide > img {
+.icon {
     width: 1.3em;
     height: 1.3em;
+}
+
+.icon-mini {
+    width: 0.95em;
+    height: 0.95em;
 }
 
 #need-auth, #btn-auth {
@@ -340,15 +345,67 @@ div.body-row {
     margin: auto !important;
 }
 
+.form-attach {
+    display: none;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 300px;
+    padding: 0 10px;
+    font-size: 14px;
+}
+
+#attach {
+    padding-bottom: 10px;
+    text-align: right;
+}
+
+#attach > p {
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+}
+
+#attach-list {
+    padding-bottom: 5px;
+    border: 1px solid #F1F2F3;
+    background-color: white;
+    z-index: 2;
+}
+
+#attach-list[data-activate='true'] {}
+
+#attach-list[data-activate='false'] {
+    display: none;
+}
+
 .attachment {
     display: block;
     padding: 5px 0;
-    text-decoration: none;
     cursor: pointer;
 }
 
 .attachment:first-child {
     padding-top: 10px;
+}
+
+.attachment > p {
+    margin-bottom: 0;
+    font-weight: 400;
+    color: #a1a1a1;
+}
+
+.attachment:hover > p {
+    color: darkgreen ;
+    transition: color 0.2s;
+}
+
+.attachment > p:first-child {}
+
+.attachment > p:last-child {
+    font-size: 13px;
 }
 
 /* Dialog */

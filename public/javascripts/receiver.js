@@ -89,7 +89,7 @@ module.exports = {
         }
 
         mailReceiver.once('ready', function () {
-            let dataList = [], currentItemNum, n = 0;;
+            let dataList = [], currentItemNum, n = 0;
             openInbox(function (err, box) {
                 if (err) throw err;
                 const mail_totalCount =  box.messages.total;
@@ -104,8 +104,8 @@ module.exports = {
                     fetch.on('message', function (msg, seqno) {
                         msg.on('body', function (stream) {
                             let buffer = '';
-                            const charset = attrList[n].charset.toString();
-                            if(charset === 'utf-8' || charset === 'UTF-8' || charset === 'euc-kr' || charset === 'EUC-KR' || charset === undefined) {
+                            const charset = attrList[(mail_limit - 1) - n].charset.toString();
+                            if(charset === 'utf-8' || charset === 'UTF-8' || charset === 'euc-kr' || charset === undefined) {
                                 let decodeStream = iconv.decodeStream('euc-kr');
                                 stream.pipe(decodeStream);
 

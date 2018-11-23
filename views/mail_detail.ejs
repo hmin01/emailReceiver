@@ -21,10 +21,15 @@
                     <div class="form-mail-detail animated fadeInRight time-07" data-tag="basic-form">
                         <div id="mail-header">
                             <label id="subject"></label>
+                            <div class="form-attach">
+                                <div id="attach">
+                                    <p><img class="icon-mini" src="/images/attachment.svg"> 첨부파일</p>
+                                </div>
+                                <div id="attach-list" data-activate="false"></div>
+                            </div>
                         </div>
                         <div id="mail-body">
                             <div class="form-content" id="content"></div>
-                            <div class="form-attach" id="attach"></div>
                         </div>
                     </div>
                 </div>
@@ -51,25 +56,41 @@
             }
         });
 
+        $("#attach > p").on('click', function() {
+            const listForm = $("#attach-list");
+            let showing = listForm.attr('data-activate');
+            if(showing === 'true') {
+                item_slidUp(listForm);
+            } else {
+                item_slidDown(listForm)
+            }
+        })
+
+        function item_slidUp(obj) {
+            obj.slideUp(250, function() {
+                obj.attr('data-activate', 'false');
+            });
+        }
+
+        function item_slidDown(obj) {
+            obj.slideDown(250, function () {
+                obj.attr('data-activate', 'true');
+            });
+        }
+
         function attachment(attachments) {
             if(attachments) {
-                $("#attach").append("/------------------------- 첨부파일 -------------------------/");
+                $(".form-attach").css('display', 'block');
                 for(let i=0; i<attachments.cnt; i++) {
-                    const html = '<a class="attachment" data-id="' + i + '"> # ' + attachments.files[i].fileName + " (" +
-                        sizeFomat(attachments.files[i].size) + "MB)" + '</a>';
-                    $("#attach").append(html);
+                    const html = '<div class="attachment" data-id="' + i + '">' +
+                        '<p>' + attachments.files[i].fileName + '</p>' +
+                        '<p>(' + sizeFomat(attachments.files[i].size) + "MB)" + '</p>'+ '</div>';
+                    $("#attach-list").append(html);
                 }
 
                 $(".attachment").on('click', function() {
                     const attachment_id = this.dataset.id;
-                    // $.ajax({
-                        // type: "POST",
-                        // url: "/download",
-                        // data: "typeUrl="+type+"&no="+no+"&attachment="+attachment_id,
-                        // success: function (data) {
-                            $(location).attr('href', '/download/'+type+"/"+no+"/"+attachment_id);
-                        // }
-                    // });
+                    $(location).attr('href', '/download/'+type+"/"+no+"/"+attachment_id);
                 });
             }
         }
